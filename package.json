@@ -1,0 +1,22 @@
+{
+  "name": "dream",
+  "version": "1.0.0",
+  "description": "我是hepeng，这是记录学习中遇到的一些程序片段",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hepeng135/Dream.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hepeng135/Dream/issues"
+  },
+  "homepage": "https://github.com/hepeng135/Dream#readme",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
+}
