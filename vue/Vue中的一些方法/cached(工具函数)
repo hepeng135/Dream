@@ -1,0 +1,10 @@
+```
+//函数柯里化的运行
+function cached(fn){
+    let cache=Object.create(null);
+    return (function(str){
+        let hit=fn(str);
+        return hit || fn(str)
+    })
+}
+```
