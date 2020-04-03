@@ -2,15 +2,19 @@
 合并Object;
 函数的具体功能：
 
-
+没写完，需要结合extend这个方法一起去看。
 
 ```
+/*
+parent:当前构造函数上的options函数，
+
+*/
 export function mergeOptions (
   parent: Object,
   child: Object,
   vm?: Component
 ): Object {
-   //当前假如是运用extend 或者 component 定义的组件时
+    //当前假如是运用extend 或者 component 定义的组件
   if (typeof child === 'function') {
     child = child.options
   }
