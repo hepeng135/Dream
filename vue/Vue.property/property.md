@@ -1,4 +1,5 @@
 initGlobalAPI:初始化构造函数的方法和属性
+当前这个函数执行完毕后，Vue构造函数上会出现如下的方法和属性
 
 文件路径：\src\core\global-api\index.js
 ```

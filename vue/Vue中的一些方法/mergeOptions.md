@@ -1,6 +1,5 @@
 
-合并Object;
-函数的具体功能：
+在Vue.prototype._init 中调用，作用
 
 没写完，需要结合extend这个方法一起去看。
 
@@ -14,7 +13,7 @@ export function mergeOptions (
   child: Object,
   vm?: Component
 ): Object {
-    //当前假如是运用extend 或者 component 定义的组件
+    
   if (typeof child === 'function') {
     child = child.options
   }

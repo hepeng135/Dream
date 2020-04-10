@@ -8,23 +8,32 @@ function initExtend (Vue: GlobalAPI) {
   let cid = 1
 
   Vue.extend = function (extendOptions: Object): Function {
+    //当前传进来的组件选项，没有的话默认为一个空对象
     extendOptions = extendOptions || {}
+    //this代表当前Vue这个构造函数,这个是会变的，当前的返回的构造函数也会挂载extend这个方法
     const Super = this
+    //获取Vue上的cid属性
+
     const SuperId = Super.cid
+    
+    //初始化缓存，判断是否有_ctor对象，有既获取，没有既创建一个空对象用于缓存    
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
    
+    //SuperId，拥有唯一性，作为缓存的Key，有对应的缓存则直接返回。
+    //缓存中放的就是调用extend需要返回的一个构造函数
     if (cachedCtors[SuperId]) {
       return cachedCtors[SuperId]
     }
 
   
-
+    //创建Vue的子类构造器，继承自Vue这个父类
     const Sub = function VueComponent (options) {
       this._init(options)
     }
     //当前的sub继承vue所有的原型方法
     Sub.prototype = Object.create(Super.prototype)
     Sub.prototype.constructor = Sub
+    
     Sub.cid = cid++
     //将Vue的options与当前传进来的组件选项合并，相同的情况下，vue.option的的权重更高
     Sub.options = mergeOptions(

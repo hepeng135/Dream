@@ -1,5 +1,11 @@
 
-
+初始化，主要做以下事情
+1：生产唯一标识_uid,挂载到当前的组件实例上
+2：初始化组件的生命周期，详情请查看
+3：初始化组件的事件，详情请查看
+4：初始化渲染器，生成render函数，既虚拟DOM
+5：调用生命周期钩子beforeCreate函数
+6：处理inject
 ```
 
 Vue.prototype._init = function (options?: Object) {
