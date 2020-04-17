@@ -10,7 +10,7 @@ function initExtend (Vue: GlobalAPI) {
   Vue.extend = function (extendOptions: Object): Function {
     //当前传进来的组件选项，没有的话默认为一个空对象
     extendOptions = extendOptions || {}
-    //this代表当前Vue这个构造函数,这个是会变的，当前的返回的构造函数也会挂载extend这个方法
+    //this代表当前这个构造函数,这个是会变的，当前的返回的构造函数也会挂载extend这个方法
     const Super = this
     //获取Vue上的cid属性
 
@@ -36,6 +36,8 @@ function initExtend (Vue: GlobalAPI) {
     
     Sub.cid = cid++
     //将Vue的options与当前传进来的组件选项合并，相同的情况下，vue.option的的权重更高
+    //Super.options  当前构造函数的option，详情可以查看：Vue.property文件夹下的property了解当前Vue.options
+    //extendOptions  当前你传进来的组件选项，不过多呢  _Ctor 和 name 属性
     Sub.options = mergeOptions(
       Super.options,
       extendOptions
