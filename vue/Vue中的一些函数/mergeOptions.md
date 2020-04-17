@@ -9,8 +9,8 @@
 * vm：当前组件的实例
 
 #### 内部调用的函数详情说明
-* normalizeProps：处理当前组件的props，详情<a href="./normalizeProps">normalizeProps</a>
-* normalizeInject:处理当前组件的inject,详情<a href="./normalizeInject">normalizeInject</a>
+* normalizeProps：处理当前组件的props，详情<a href="./normalizeProps.md">normalizeProps</a>
+* normalizeInject:处理当前组件的inject,详情<a href="./normalizeInject.md">normalizeInject</a>
 * normalizeDirectives:处理当前组件内的directive,处理后的options.directives.dirName={bind:dirFn,update:dirFn}
 ```
 /*
