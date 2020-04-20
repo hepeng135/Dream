@@ -1,5 +1,5 @@
-initGlobalAPI:初始化构造函数的方法和属性
-当前这个函数执行完毕后，Vue构造函数上会出现如下的方法和属性
+#### initGlobalAPI:初始化构造函数的方法和属性
+>当前这个函数执行完毕后，Vue构造函数上会出现如下的方法和属性
 
 * Vue.config :一些Vue的全局配置，config这个属性用defineProperty进行呢数据劫持。
 
@@ -9,12 +9,10 @@ initGlobalAPI:初始化构造函数的方法和属性
 * Vue.nextTick:全局方法nextTick,在下一次DOM更新循环结束之后执行回调。
 * Vue.observable:全局方法observable,让一个对象可响应，Vue内部会用它来处理data函数返回的对象。
 * Vue.options={
-
     components:{KeepAlive},//组件
     direvtives:{},//指令
     filters:{},//过滤器
     _base:Vue
-    
   }
   
 * Vue.use() 
