@@ -17,6 +17,23 @@ strats.data=function (
   return mergeDataOrFn(parentVal, childVal, vm)
 }
 
+//ASSET_TYPES=>['component','directive','filter']
+//strats上添加 components/directives/filters
+ASSET_TYPES.forEach(function (type) {
+  strats[type + 's'] = mergeAssets
+})
+
+//将传进来的options对应的val作为res的_proto_ 既，res这个实例的原型
+function mergeAssets (parentVal: ?Object,childVal: ?Object,vm?: Component,key: string): Object {
+  const res = Object.create(parentVal || null)
+  if (childVal) {
+    return extend(res, childVal)
+  } else {
+    return res
+  }
+}
+
+
 //合并data或者函数
 export function mergeDataOrFn (
   parentVal: any,

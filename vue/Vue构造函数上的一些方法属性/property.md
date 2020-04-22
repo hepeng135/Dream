@@ -1,5 +1,6 @@
 #### initGlobalAPI:初始化构造函数的方法和属性
->当前这个函数执行完毕后，Vue构造函数上会出现如下的方法和属性
+>* 当前这个函数执行完毕后，Vue构造函数上会出现如下的方法和属性,改方法共有Web、weex、server三种模式。
+>* 文件路径：\src\core\global-api\index.js
 
 * Vue.config :一些Vue的全局配置，config这个属性用defineProperty进行呢数据劫持。
 
@@ -18,9 +19,10 @@
 * Vue.use() 
 * Vue.mixin()
 * Vue.extend()   <a href="../Vue.property/Extend方法">查看extend方法详情</a>
-* 添加Vue.component、vue.directive()、vue.filter方法。<a href="../Vue中的一个函数/initAssetRegisters">查看添加详情</a>
+* 添加Vue.component、vue.directive()、vue.filter方法。<a href="../Vue中的一些函数/initAssetRegisters">查看添加详情</a>
 
-文件路径：\src\core\global-api\index.js
+
+####initGlobalAPI主要源码解析
 ```
 //挂载config到Vue上
 const configDef = {}

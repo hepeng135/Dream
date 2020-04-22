@@ -57,7 +57,7 @@ function initExtend (Vue: GlobalAPI) {
     Sub.mixin = Super.mixin
     Sub.use = Super.use
 
-  
+    //将component/filter/directive这些构造函数方法同时赋值为新的构造函数
     ASSET_TYPES.forEach(function (type) {
       Sub[type] = Super[type]
     })
