@@ -1,16 +1,19 @@
 
+#### 函数作用
+将子构造函数的options与父构造函数的options进行合并，每个选项都对应一个合并函数，这些函数挂载strats对象上，key值与选项的key值相互呼应。
+
 #### 参数列表
->* parent:父级的组件选项，
->* child:子集（当前）的组件选项 
->* vm：当前组件的实例
+>* parent:父级的组件选项。
+>* child:子集（当前）的组件选项。
+>* vm：当前组件的实例。
 
 ### 内部重要变量说明，strats：options上的一些key对应val的处理程序
 >strats这个对象中的每个属性都对应一个方法函数。
->* strats.data：猜想是处理options.data的，需要进一步看源码
+>* strats.data：处理options.data的，详情请看下面有关的代码详解
 >* strats.beforeCreate/created/beforeMount/mounted/beforeUpdate/updated/beforeDestroy/destroyed/activated/deactivated/errorCaptured/serverPrefetch
-    处理钩子函数，也需要进一步查看源码
->* strats.components/directives/filters:处理组件，指令，过滤器，需要进一步看源码
->* strats.watch   :观察变化，需要进一步看源码
+    处理钩子函数，详情请看下面有关的代码详解
+>* strats.components/directives/filters:处理组件，指令，过滤器，详情请看下面有关的代码详解
+>* strats.watch   :观察变化，详情请看下面有关的代码详解
 >* start.props/methods/inject/computed
 >* start.provide
 
@@ -72,20 +75,37 @@ export function mergeOptions (
 }
 ```
 
-### 父组件和子组件的options合并的主要程序。
-#### 参数列表
->* parentVal：父组件的option对应key的val
->* childVal：当前组件的option对应key的val
->* vm:当前组件的实例
+
 ####对options.data的合并，细节如下。
-> 当前没有实例VM的处理
+#### 参数列表
+>* parentVal：父组件的option.data的值，可能是一个函数或者json对象。
+>* childVal：当前组件的option.data的值，可能是一个函数或者json对象。
+>* vm:当前组件的实例
+#####1：声明组件，既创建一个组件的构造函数时，在调用Component和extend时会走这个。
+>* 如果没有child没有data则直接返回parent的data，如果没有parent没有data则直接返回child的data
+>* 如果child和parent同时存在，则返回mergedDataFn函数。
+```
+let exampleComponent1=Vue.extend({
+    data()=>({title:'exampleComponent1'})
+})
+let exampleComponent2=exampleComponent1.extend({
+    data()=>({title:'exampleComponent2'})
+})
+//处理后的options.data
+options.data=function(){
+    return function mergedDataFn () {
+      return mergeData(
+        typeof childVal === 'function' ? childVal.call(this, this) : childVal,
+        typeof parentVal === 'function' ? parentVal.call(this, this) : parentVal
+      )
+    }
+}
+```
+#####2：实例化组件，既将一个组件的构造函数实例化时。
+>* 
 
->>1：如果没有child没有data则直接返回parent的data，如果没有parent没有data则直接返回child的data
 
->>2: 如果child和parent同时存在，则返回mergedDataFn函数，该函数调用mergeData将parentData合并到childData上。
-
->>3：合并规则，当前key假如parentData和childData同时拥有，则不做处理，当前childData上没有时，则利用set去添加，保持当前属性的响应式。
-
+>* 
 ```
 //挂载对应options中data的处理函数
 strats.data=function (parentVal: any,childVal: any,vm?: Component): ?Function {
@@ -162,6 +182,26 @@ function mergeData (to: Object, from: ?Object): Object {
 
 3：将这个新的对象赋值给子集的option.components/direvtives/filters
 ```
+let exampleComponent=Vue.extend({
+    directives:{dirName:dirJson},
+    filters:{filterName:filterFfunc},
+    components:{ComponentName:componentJson/componentCustructor}
+})
+//处理后
+options.components={
+    ComponentName:componentJson/componentCustructor
+    _proto_(原型属性指向):指向Vue自带的组件，{keepLive,Transition,TransitionGroups}
+}
+options.directives={
+    filterName:filterFfunc,
+    _proto_(原型属性指向):指向Vue自带的指令,{model,show}
+}
+options.filters={
+    filters:filterFfunc
+    _proto_(原型属性指向):指向Vue自带的过滤器,{}，无。
+}
+```
+```
 //ASSET_TYPES=>['component','directive','filter']
 //挂载对应options上components/directives/filters的处理函数
 ASSET_TYPES.forEach(function (type) {
@@ -182,9 +222,19 @@ function mergeAssets (
 }
 
 ```
-#### 对options上所有的声明周期函数进行合并
-
-
+#### 对options上所有的声明生命周期函数进行合并
+对options上的生命周期函数进行合并成数组，同一个key，父级在前面，子级在后，eg:[parentMounted,childMounted]
+```
+let exampleComponent=Vue.extend({
+    created(){}
+})
+new Vue({
+    el:'#app',
+    created(){},
+    components:{exampleComponent}
+})
+options.create=[VueCreated,exampleComponentCreated]
+```
 ```
 //LIFECYCLE_HOOKS =>['beforeCreate','created','beforeMount','mounted','beforeUpdate','updated','beforeDestroy','destroyed','activated','deactivated','errorCaptured','serverPrefetch']
 //挂载对应options上的生命周期钩子名称的处理函数
@@ -195,7 +245,7 @@ function mergeHook (
   parentVal: ?Array<Function>,
   childVal: ?Function | ?Array<Function>
 ): ?Array<Function> {
-    const res ;
+    let res ;
     if(childVal){
         if(parentVal){
             res= parentVal.concat(childVal)
@@ -215,6 +265,9 @@ function mergeHook (
 }
 ```
 #### 对options上的watch选项进行合并
+最终结果：{
+    watchKey:[parentWatch,childWatch]
+}
 ```
 //挂载对应options上watch的处理函数
 strats.watch = function (parentVal: ?Object,childVal: ?Object,vm?: Component,key: string): ?Object {

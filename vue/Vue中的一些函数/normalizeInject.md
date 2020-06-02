@@ -1,11 +1,11 @@
 ### normalizeInject函数的作用
-> 首先provide/inject是成对出现的，既 provide:父组件向子组件提供数据，inject：子组件介绍对应的数据
+> 首先provide/inject是成对出现的，既 provide:父组件向子组件提供数据，inject：子组件注入对应的数据
 >
 >```
 >//在父组件提供(可以是一个Object，或者由一个函数返回的Object)
 >
 >provide:()=>{name:'hepeng',age:'18',job:'weber'}
->ptovide:{name:'hepeng',age:'18',job:'weber'}
+>provide:{name:'hepeng',age:'18',job:'weber'}
 >
 >//在组件中声明时，数组或者json
 >
