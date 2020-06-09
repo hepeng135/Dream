@@ -17,10 +17,8 @@ export function initRender (vm: Component) {
 
   const renderContext = parentVnode && parentVnode.context
    
-    
   vm.$slots = resolveSlots(options._renderChildren, renderContext)
   vm.$scopedSlots = emptyObject
-
 
   //把createElement函数挂载到当前组件的实例上
   /**

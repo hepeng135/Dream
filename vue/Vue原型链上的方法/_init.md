@@ -9,7 +9,7 @@
 
 3:initEvents(vm),初始化事件,$emit触发与$on兼容的自定义事件<a href="../初始化流程/初始化过程中的一些函数/initEvents初始化事件($emit,$on等).md">查看initEvents方法的详情</a>
 
-4:initRender(vm),初始化渲染器（生成render函数，既虚拟DOM）<a href="../初始化流程/初始化过程中的一些函数/initRender初始化渲染(生成render函数、虚拟DOM).md">查看initRender方法的详情</a>
+4:initRender(vm),初始化渲染器<a href="../初始化流程/初始化过程中的一些函数/initRender初始化渲染.md">查看initRender方法的详情</a>
 
 5:callHook(vm, 'beforeCreate'),调用生命周期的构造函数beforeCreate。
 
