@@ -1,5 +1,7 @@
 ####函数的作用
-    编辑当前template,
+    1：新建一个对象，深度拷贝参数options。
+    2：缓存当前的template
+    3:调用compile函数
 
 ####文件路径
     /src/compiler/to-function.js

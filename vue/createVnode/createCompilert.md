@@ -1,17 +1,13 @@
-
-####createCompilerCreator函数
-    调用createCompilerCreator函数，并传入一个函数，返回一个对象
-
 #### baseCompile函数
+    1:调用parse函数，进行模板解析，返回解析完成的vnode
+    2:
 
 #### baseCompile函数的参数
 >* @params template:当前的模板字符串
 >* @params options：baseOptions和compileOptions合并后的版本。
 >
-#### baseCompile内部函数调用
->* parse ：解析html
 ```
-export const createCompiler = createCompilerCreator(function baseCompile (
+function baseCompile (
   template: string,
   options: CompilerOptions
 ): CompiledResult {
@@ -25,6 +21,6 @@ export const createCompiler = createCompilerCreator(function baseCompile (
     render: code.render,
     staticRenderFns: code.staticRenderFns
   }
-})
+}
 
 ```

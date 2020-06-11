@@ -1,5 +1,12 @@
 ## 将template生成Vnode的步骤
-
+     const { render, staticRenderFns } = compileToFunctions(template, {
+            outputSourceRange: process.env.NODE_ENV !== 'production',
+            shouldDecodeNewlines,
+            shouldDecodeNewlinesForHref,
+            delimiters: options.delimiters,
+            comments: options.comments
+          }, this)
+    
 ### 1:解析compileToFunctions函数是怎么定义的。
     1):import { compileToFunctions } from './compiler/index',
     首先compileToFunctions是从src/platforms/web/compiler/index文件导出的，
@@ -55,6 +62,15 @@
 
 ### 2:当createed执行完成以后，就需要解析当前html模板，生成虚拟dom
 
-#### 1: 执行compileToFunctions函数，传入template(模板字符串)、<a href="www.baidu.com">compilerOptions(解析配置)</a>、vm(当前组件实例)进行解析html。
- 
+#### 1: 执行<a href="">compileToFunctions</a>函数，传入template(模板字符串)、<a href="#">compilerOptions(解析配置)</a>、vm(当前组件实例)进行解析html。
+
+#### 2：在compileToFunctions函数中执行<a href="">compile</a>函数，用来合并<a href="#">baseOptions</a>和CompilerOptions
+    合并后的finalOptions
+    {
+        CompileOptions,
+        __proto__:指向baseOptions
+    }
+    
+#### 3：在compile函数中调用<a href="">baseCompile</a>函数，传入template(模板字符串)，合并后的对象finalOptions作为参数。
         
+#### 4:在baseCompile函数中调用<a href="#">parse</a>函数。
