@@ -43,9 +43,9 @@ const baseOptions={
 ```
 ###集合下各个数据项的意思
 
-> ####1：expectHTML：true  常量，一直为true，表示模板传入的是html
+> #### expectHTML：true  常量，一直为true，表示模板传入的是html
 
-> ####2：modules: [klass,style,model]对应处理class、style、model的集合
+> #### modules: [klass,style,model]对应处理class、style、model的集合
 >>*  klass.staticKeys:['staticKeys']  常量
 >>*  klass.transformNode:处理静态class和绑定class，函数如下    
 ```
@@ -95,3 +95,48 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
 ```
 >>* klass.genData(el):将el.staticStyle,el.styleBinding处理成字符串并返回,'staticStyle:styleValue,style:styleExpression'
 >>* model.preTransformNode(el,options)：处理input的vdom
+```
+    //获取v-if的表达式，并从el.attrsList、el.attrsMap中移除
+   const ifCondition = getAndRemoveAttr(el, 'v-if', true);
+    
+```
+
+
+>#### isPreTag(el)：返回当前标签是否pre
+>#### isUnaryTag(el):当前标签是否不需要闭合 eg: hr,br
+>#### mustUseProp(el):判断当前属性在该标签上是否必选用props绑定  ?
+```
+ attrName   tag
+  value      input,textarea,option,select,progress  (input 对应value的一些标签)
+             button
+  selected   option
+  checked    input
+  muted      video
+const acceptValue = makeMap('input,textarea,option,select,progress')
+export const mustUseProp = (tag: string, type: ?string, attr: string): boolean => {
+  return (
+    (attr === 'value' && acceptValue(tag)) && type !== 'button' ||
+    (attr === 'selected' && tag === 'option') ||
+    (attr === 'checked' && tag === 'input') ||
+    (attr === 'muted' && tag === 'video')
+  )
+}
+````
+
+>#### getTagNamespace(tag) :判断当前标签是否svg，或者match
+```
+export function getTagNamespace (tag: string): ?string {
+  if (isSVG(tag)) {
+    return 'svg'
+  }
+  // basic support for MathML
+  // note it doesn't support other MathML elements being component roots
+  if (tag === 'math') {
+    return 'math'
+  }
+}
+```
+
+>#### isReservedTag(tag) :确定当前标签是html标签或者svg标签
+>
+>
