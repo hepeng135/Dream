@@ -103,7 +103,16 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
 
 
 >#### isPreTag(el)：返回当前标签是否pre
+```
+export const isPreTag = (tag: ?string): boolean => tag === 'pre'
+```
 >#### isUnaryTag(el):当前标签是否不需要闭合 eg: hr,br
+```
+export const isUnaryTag = makeMap(
+  'area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' +
+  'link,meta,param,source,track,wbr'
+)
+```
 >#### mustUseProp(el):判断当前属性在该标签上是否必选用props绑定  ?
 ```
  attrName   tag
@@ -122,8 +131,13 @@ export const mustUseProp = (tag: string, type: ?string, attr: string): boolean =
   )
 }
 ````
-
->#### getTagNamespace(tag) :判断当前标签是否svg，或者match
+>#### canBeLeftOpenTag(tag):判断当前是否自动闭合的标签
+```
+export const canBeLeftOpenTag = makeMap(
+  'colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr,source'
+)
+```
+>#### getTagNamespace(tag) :判断当前标签是否svg，或者math
 ```
 export function getTagNamespace (tag: string): ?string {
   if (isSVG(tag)) {
@@ -138,5 +152,27 @@ export function getTagNamespace (tag: string): ?string {
 ```
 
 >#### isReservedTag(tag) :确定当前标签是html标签或者svg标签
->
->
+```
+export const isReservedTag = (tag: string): ?boolean => {
+  return isHTMLTag(tag) || isSVG(tag)
+}
+export const isSVG = makeMap(
+  'svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font-face,' +
+  'foreignObject,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,' +
+  'polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view',
+  true
+)
+export const isHTMLTag = makeMap(
+  'html,body,base,head,link,meta,style,title,' +
+  'address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,' +
+  'div,dd,dl,dt,figcaption,figure,picture,hr,img,li,main,ol,p,pre,ul,' +
+  'a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,' +
+  's,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,' +
+  'embed,object,param,source,canvas,script,noscript,del,ins,' +
+  'caption,col,colgroup,table,thead,tbody,td,th,tr,' +
+  'button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,' +
+  'output,progress,select,textarea,' +
+  'details,dialog,menu,menuitem,summary,' +
+  'content,element,shadow,template,blockquote,iframe,tfoot'
+)
+```

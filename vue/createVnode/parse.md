@@ -8,17 +8,31 @@ export function parse (
   warn = options.warn || baseWarn
    //确定当前标签是否pre
   platformIsPreTag = options.isPreTag || no
-
+    //判断当前标签是否与属性对应
+    /*
+     attrName   tag
+     value      input,textarea,option,select,progress
+                button
+     selected   option
+     checked    input
+     muted      video
+     */
   platformMustUseProp = options.mustUseProp || no
+      //判断当前标签是否svg，或者match
   platformGetTagNamespace = options.getTagNamespace || no
+  //确定当前标签是html标签或者svg标签
   const isReservedTag = options.isReservedTag || no
+ //确定当前标签是组件还是元素
   maybeComponent = (el: ASTElement) => !!el.component || !isReservedTag(el.tag)
-
+//获取处理class和style的函数，结果[classTransformNode,styleTransFormNode];
   transforms = pluckModuleFunction(options.modules, 'transformNode')
+ //获取处理input的函数
   preTransforms = pluckModuleFunction(options.modules, 'preTransformNode')
+  //好像没有这个函数
   postTransforms = pluckModuleFunction(options.modules, 'postTransformNode')
-
+//当前纯文本插入分隔符，默认 ["{{"，"}}"]
   delimiters = options.delimiters
+
 
   const stack = []
   const preserveWhitespace = options.preserveWhitespace !== false
