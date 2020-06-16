@@ -63,3 +63,58 @@ function parseStartTag () {
 
 
 ```
+##处理已经解析的开始标签,并调用start函数
+   参数列表
+   @params match:当前解析出的标签集合
+   
+```
+function handleStartTag (match) {
+    const tagName = match.tagName
+    const unarySlash = match.unarySlash
+    
+    if (expectHTML) {
+      if (lastTag === 'p' && isNonPhrasingTag(tagName)) {
+        parseEndTag(lastTag)
+      }
+      if (canBeLeftOpenTag(tagName) && lastTag === tagName) {
+        parseEndTag(tagName)
+      }
+    }
+    //检测当前是否单个可闭合便签
+    const unary = isUnaryTag(tagName) || !!unarySlash
+    
+    const l = match.attrs.length
+    const attrs = new Array(l)
+    //将match.attrs中的属性处理成以下形式
+    // [{name:attrName,value:attrVal,start:attrStartPs,end:attrEndPs}]
+    for (let i = 0; i < l; i++) {
+      const args = match.attrs[i]
+      const value = args[3] || args[4] || args[5] || ''  //获取当前属性的表达式
+        
+        //处理换行编码这个浏览器特性
+      const shouldDecodeNewlines = tagName === 'a' && args[1] === 'href'
+        ? options.shouldDecodeNewlinesForHref
+        : options.shouldDecodeNewlines
+      attrs[i] = {
+        name: args[1],
+        value: decodeAttr(value, shouldDecodeNewlines)
+      }
+      if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
+        //增加属性的开始位置，算上空格
+        attrs[i].start = args.start + args[0].match(/^\s*/).length
+        //结束位置
+        attrs[i].end = args.end
+      }
+    }
+    //如果当前不是单个可闭合标签
+    if (!unary) {
+      stack.push({ tag: tagName, lowerCasedTag: tagName.toLowerCase(), attrs: attrs, start: match.start, end: match.end })
+      lastTag = tagName
+    }
+    
+    //调用start函数
+    if (options.start) {
+      options.start(tagName, attrs, unary, match.start, match.end)
+    }
+  }
+```

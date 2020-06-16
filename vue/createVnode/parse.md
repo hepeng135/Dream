@@ -1,4 +1,6 @@
-#### 函数作用：
+##开始解析html模板
+
+
 
 ```
 export function parse (
@@ -6,42 +8,43 @@ export function parse (
   options: CompilerOptions
 ): ASTElement | void {
   warn = options.warn || baseWarn
-   //确定当前标签是否pre
+
+  //返回当前标签是否pre
   platformIsPreTag = options.isPreTag || no
-    //判断当前标签是否与属性对应
-    /*
-     attrName   tag
-     value      input,textarea,option,select,progress
-                button
-     selected   option
-     checked    input
-     muted      video
-     */
+  //判断当前标签是否与属性对应
+ /*
+  attrName   tag
+  value      input,textarea,option,select,progress
+             button
+  selected   option
+  checked    input
+  muted      video
+  */
   platformMustUseProp = options.mustUseProp || no
-      //判断当前标签是否svg，或者match
+  //判断当前标签是否svg，或者match
   platformGetTagNamespace = options.getTagNamespace || no
   //确定当前标签是html标签或者svg标签
   const isReservedTag = options.isReservedTag || no
- //确定当前标签是组件还是元素
+  //确定当前标签是组件还是元素
   maybeComponent = (el: ASTElement) => !!el.component || !isReservedTag(el.tag)
-//获取处理class和style的函数，结果[classTransformNode,styleTransFormNode];
+  //获取处理class和style的函数，结果[classTransformNode,styleTransFormNode];
   transforms = pluckModuleFunction(options.modules, 'transformNode')
- //获取处理input的函数
+  //获取处理input的函数
   preTransforms = pluckModuleFunction(options.modules, 'preTransformNode')
   //好像没有这个函数
   postTransforms = pluckModuleFunction(options.modules, 'postTransformNode')
-//当前纯文本插入分隔符，默认 ["{{"，"}}"]
+  //当前纯文本插入分隔符，默认 ["{{"，"}}"]
   delimiters = options.delimiters
 
-
   const stack = []
+  //是否保利空格
   const preserveWhitespace = options.preserveWhitespace !== false
   const whitespaceOption = options.whitespace
   let root
   let currentParent
-  let inVPre = false
-  let inPre = false
-  let warned = false
+  let inVPre = false  //表示当前元素以及它的子元素是否需要编译，既处理v-pre指令
+  let inPre = false    //表示当前标签是不是pre
+  let warned = false  //警告标识
 
   function warnOnce (msg, range) {
     if (!warned) {
@@ -188,7 +191,7 @@ export function parse (
           }
         })
       }
-
+      //判断当前标签是否style、script 并且不再服务端
       if (isForbiddenTag(element) && !isServerRendering()) {
         element.forbidden = true
         process.env.NODE_ENV !== 'production' && warn(
