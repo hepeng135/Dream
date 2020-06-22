@@ -1,5 +1,5 @@
 
-parseStartTag:解析标签，以及标签上的属性。
+## parseStartTag:解析标签，以及标签上的属性。
 
 ![](./image/parseStarTag.png)
 
