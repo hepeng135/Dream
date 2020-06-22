@@ -80,7 +80,7 @@ const baseOptions={
 该函数和klass.transformNode的作用一样
  函数作用：处理style和绑定的style(:style/v-style:class),
             a:将style从el.attrsList中移除。当removeFromMap为true时，同时从el.attrsMap中移除style，并返回对应的staticStyle，并添加到el.staticClass
-            b:获取绑定style的表达式，添加到el.styleBinding中。
+            b:获取绑定style的表达式,并解析出过滤器，添加到el.styleBinding中。
 function transformNode (el: ASTElement, options: CompilerOptions) {
   const warn = options.warn || baseWarn
   const staticStyle = getAndRemoveAttr(el, 'style')
@@ -93,7 +93,7 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
   }
 }
 ```
->>* klass.genData(el):将el.staticStyle,el.styleBinding处理成字符串并返回,'staticStyle:styleValue,style:styleExpression'
+>>* style.genData(el):将el.staticStyle,el.styleBinding处理成字符串并返回,'staticStyle:styleValue,style:styleExpression'
 >>* model.preTransformNode(el,options)：处理input的vdom
 ```
     //获取v-if的表达式，并从el.attrsList、el.attrsMap中移除
@@ -107,6 +107,7 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
 export const isPreTag = (tag: ?string): boolean => tag === 'pre'
 ```
 >#### isUnaryTag(el):当前标签是否不需要闭合 eg: hr,br
+eg <hr> 或者 <hr/> 都可以
 ```
 export const isUnaryTag = makeMap(
   'area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' +

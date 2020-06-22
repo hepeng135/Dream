@@ -1,3 +1,6 @@
+
+####ASTElement [JSON] : 通过解析html模板生成标签信息json。
+
 ```
 {
     type:[Number]标签类型   1：元素  2:带有表达式的文本  3：纯文本

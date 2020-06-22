@@ -1,9 +1,13 @@
 
+####start函数的作用
+    1：创建一个完整的数据标签json
+    2：处理当前解析成数据json格式标签的attr属性，
+    3：当前标签是否root根元素，既该组件所属html模板的最外层元素（非template）。
 
 ####参数
     @params tag:标签名
     @params attrs:标签属性集合
-    @params unary:当前是否闭合标签
+    @params unary:当前是否单个可闭合标签
     @params start:正则符合开始的地方
     @params end:正则符合结束的地方
 #### 函数执行内容

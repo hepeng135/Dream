@@ -79,21 +79,22 @@ export function parseHTML (html, options) {
           !startTagOpen.test(rest) && //不是开始标签
           !comment.test(rest) &&  //不是注释
           !conditionalComment.test(rest)//不是Ie判断
-        ) {//纯文本
-          // < in plain text, be forgiving and treat it as text
+        ) {
+        //带有<符号的纯文本
+         //while循环查找<，然后更新rest和textEnd
           next = rest.indexOf('<', 1)
           if (next < 0) break
           textEnd += next
           rest = html.slice(textEnd)
         }
-        text = html.substring(0, textEnd)
+        text = html.substring(0, textEnd) //获取所有的纯文本
       }
 
-      if (textEnd < 0) {
-        text = html
+      if (textEnd < 0) {//当没有<时，证明该段字符串为纯文本
+        text = html  
       }
 
-      if (text) {//将文本标签和空白标签从html中剔除
+      if (text) {//将文本标签和空白标签从html中剔除，重置html，index
         advance(text.length)
       }
         //处理当前的文本标签或者空白标签

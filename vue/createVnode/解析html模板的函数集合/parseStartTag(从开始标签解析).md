@@ -66,7 +66,11 @@ function parseStartTag () {
 ##处理已经解析的开始标签,并调用start函数
    参数列表
    @params match:当前解析出的标签集合
-   
+   match.tag:标签名称
+   attr:标签属性集合
+   start：标签开始位置 （<开始的位置）
+   end:标签结束的位置  （>结束的位置）
+   unarySlash: 当前标签结束时是否有/  。 /  或者 ''
 ```
 function handleStartTag (match) {
     const tagName = match.tagName
@@ -106,7 +110,7 @@ function handleStartTag (match) {
         attrs[i].end = args.end
       }
     }
-    //如果当前不是单个可闭合标签
+    //如果当前是单个可闭合标签那就确定当前标签绝对不会存在子集，则就不需要向stack中去添加，之后用
     if (!unary) {
       stack.push({ tag: tagName, lowerCasedTag: tagName.toLowerCase(), attrs: attrs, start: match.start, end: match.end })
       lastTag = tagName
