@@ -1,9 +1,13 @@
 
-parseStartTag:解析标签，以及标签上的属性。
+#### parseStartTag:解析标签，以及标签上的属性。
 
-![](./image/parseStarTag.png)
+#### 函数执行流程图
+![](../image/parseStarTag.png)
 
-函数简介：
+#### 函数背景：
+    该函数被定义在parseHTML函数中，作为parseHTML的局部函数。
+  
+#### 函数简介：
 
     1：通过正则匹配标签开始位置:/^<((?:[a-zA-Z_][\-\.0-9_a-zA-Z]*)?[a-zA-Z_][\-\.0-9_a-zA-Z]*)/ match 出标签名
    
@@ -22,7 +26,7 @@ parseStartTag:解析标签，以及标签上的属性。
     attrs:[matchVal1,matchVal2] //标签属性集合，每项都是match正则得到的数组
     start:标签开始位置
     end:标签结束的位置
-    unarySlash：标签闭合的内容，一般为空格  或者  /
+    unarySlash：标签闭合的内容，一般为空 或者  /
 }
 
 function parseStartTag () {
