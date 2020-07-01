@@ -1,7 +1,8 @@
 
-#### parseStartTag:解析标签，以及标签上的属性。
+## parseStartTag:解析标签，以及标签上的属性。
 
-#### 函数执行流程图
+
+#### 函数执行流程图git
 ![](../image/parseStarTag.png)
 
 #### 函数背景：
