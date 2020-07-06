@@ -12,18 +12,21 @@
 
     parent:[Object] 当前标签的父级
     children:[Array] 当前标签的子级标签
-
+ 
     staticClass:[String] 静态class的值,
     classBinding:[String] 动态绑定class的表达式,
     
     staticStyle:[String] 静态style的值,
     styleBinding:[String] 动态绑定styled的表达式,
 
+     pre:true | false  当前元素已其子元素是否需要编译  v-pre指令
+
+    
 
     forbidden:true| false  是否style或者script标签
 
 
-    pre:true | false  当前元素已其子元素是否需要编译
+  
 
     value in data | (value,index) in data | (value,name,index) in data 
     

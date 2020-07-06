@@ -6,7 +6,7 @@
     stack:存储属性值被处理好的标签信息。
     lastTag：更新为已经处理好的标签名称作为上一个标签。
     
-#### 函数执行流程：
+#### 函数主要的作用：
     
     1：通过函数parseStartTag，我们将匹配开始标签和标签上的属性简单的匹配出来,
     {tagName:'标签名',attrs:[matchAttrArr1,matchAttrArr2],start:'标签开始的位置'，end:'标签结束的位置',unarySlash:'标签结束标识符一般为空或者/'}
@@ -49,7 +49,7 @@ function handleStartTag (match) {
         parseEndTag(tagName)
       }
     }
-    //isUnaryTag 检测当前标签是不是单个、不用成对出现的标签,如 hr br ||  符号转换成Boolean值
+    //isUnaryTag 检测当前标签是不是单个、不用成对出现的标签,如input hr br ||  符号转换成Boolean值
     const unary = isUnaryTag(tagName) || !!unarySlash
     //获取匹配出标签属性的数量
     const l = match.attrs.length
