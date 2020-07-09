@@ -77,6 +77,19 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
 ```
 
 #### modelObj.transformNode 函数详解
+   
+    1：根据el创建了三个副本，type分别为 radio checkBox  other(绑定的type)
+    @return el0={
+        input标签属性
+        if:typeBind==='checkBox' && ifExpression
+        ifConditions:[
+            {exp:typeBind==='checkBox' && ifExpression,block:el0},   =>if
+            {exp:typeBind==='radio' && ifExpression,block:el1},      =>else if
+            {exp:ifExpression,block:el2}                            >=else if
+        ],
+        else:是否拥有else
+        else-if:elseIfCondition
+    }
 
 ```
 function preTransformNode (el: ASTElement, options: CompilerOptions) {
@@ -94,7 +107,7 @@ function preTransformNode (el: ASTElement, options: CompilerOptions) {
         if (map[':type'] || map['v-bind:type']) {
             typeBinding = getBindingAttr(el, 'type')
         }
-        //如果没有type这个属性，则自己新增一个
+        //兼容v-bind="text" 这种方式 这时typeBind为 (text).type
         if (!map.type && !typeBinding && map['v-bind']) {
             typeBinding = `(${map['v-bind']}).type`
         }
@@ -125,42 +138,45 @@ function preTransformNode (el: ASTElement, options: CompilerOptions) {
             //添加一组属性 type：checkBox, branch0.attrsList、branch0.attrsMap 中都添加呢
             addRawAttr(branch0, 'type', 'checkbox')
             
-            //处理其他的一些属性
+            //处理其他的一些特定的绑定属性  key ref v-slot slot-scope 
             processElement(branch0, options)
-            
-            branch0.processed = true // prevent it from double-processed
-    branch0.if = `(${typeBinding})==='checkbox'` + ifConditionExtra
-    addIfCondition(branch0, {
-    exp: branch0.if,
-    block: branch0
-    })
-    // 2. add radio else-if condition
-    const branch1 = cloneASTElement(el)
-    getAndRemoveAttr(branch1, 'v-for', true)
-    addRawAttr(branch1, 'type', 'radio')
-    processElement(branch1, options)
-    addIfCondition(branch0, {
-    exp: `(${typeBinding})==='radio'` + ifConditionExtra,
-    block: branch1
-    })
-    // 3. other
-    const branch2 = cloneASTElement(el)
-    getAndRemoveAttr(branch2, 'v-for', true)
-    addRawAttr(branch2, ':type', typeBinding)
-    processElement(branch2, options)
-    addIfCondition(branch0, {
-    exp: ifCondition,
-    block: branch2
-    })
+            //表示当前一些特定的属性都已经处理
+            branch0.processed = true 
+            添加if属性
+            branch0.if = `(${typeBinding})==='checkbox'` + ifConditionExtra
+            //添加ifConditions属性，向里面添加json
+            //{exp :判断条件 block:条件满足时显示标签信息}
+            addIfCondition(branch0, {
+                exp: branch0.if,
+                block: branch0
+            })
+            // 2. 根据el创建一个type为radio的标签json，并添加到判断条件中
+            const branch1 = cloneASTElement(el)
+            getAndRemoveAttr(branch1, 'v-for', true)
+            addRawAttr(branch1, 'type', 'radio')
+            processElement(branch1, options)
+            addIfCondition(branch0, {
+                exp: `(${typeBinding})==='radio'` + ifConditionExtra,
+                block: branch1
+            })
+            // 3. 创建一个绑定的type
+            const branch2 = cloneASTElement(el)
+                getAndRemoveAttr(branch2, 'v-for', true)
+                addRawAttr(branch2, ':type', typeBinding)
+                processElement(branch2, options)
+                addIfCondition(branch0, {
+                exp: ifCondition,
+                block: branch2
+            })
     
-    if (hasElse) {
-    branch0.else = true
-    } else if (elseIfCondition) {
-    branch0.elseif = elseIfCondition
-    }
+            if (hasElse) {
+                branch0.else = true
+            } else if (elseIfCondition) {
+                branch0.elseif = elseIfCondition
+            }
     
-    return branch0
-    }
+            return branch0
+        }
     }
 }
 

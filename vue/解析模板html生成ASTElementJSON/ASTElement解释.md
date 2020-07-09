@@ -1,6 +1,11 @@
 
 ####ASTElement [JSON] : 通过解析html模板生成标签信息json。
 
+#### 绑定属性的val和一般属性val的区别
+    绑定的值： 直接取出，进行过滤器解析，然后得出 xxxx （字符串）;
+    普通的值：直接取出，用JSON.stringify处理下，得出  "xxxx" （带有双引号的字符串）
+
+
 ```
 {
     type:[Number]标签类型   1：元素  2:带有表达式的文本  3：纯文本
@@ -17,24 +22,35 @@
     children:[Array] 当前标签的子级标签
 
     staticClass:[String] 静态class的值,
-    classBinding:[String] 动态绑定class的表达式,
-    
-    staticStyle:[String] 静态style的值,
-    styleBinding:[String] 动态绑定styled的表达式,
+    classBinding:[String] 动态绑定class的表达式, 
+    当带有过滤器时  f("filter1")(expression,arg1,arg2,...)
+    多个过滤器时 f("filter2")(f("filter1")(expression,arg1,arg2,...),arg1,arg2,....)    
 
+    staticStyle:[String] 静态style的值,
+    styleBinding:[String] 动态绑定styled的表达式, 可能存在过滤器
 
     forbidden:true| false  是否style或者script标签
 
-
+    //解析v-pre指令
     pre:true | false  当前元素已其子元素是否需要编译
 
-    value in data | (value,index) in data | (value,name,index) in data 
+    //value in data | (value,index) in data | (value,name,index) in data
+    //解析v-for指令所得  eg : (item,key,index) in message
+    for: message
+    alias:item
+    iterator1：key
+    iterator2: index
     
+    //解析v-if指令
 
-    //解析v-for指令所得
-    for: data
-    alias:当前v-for 里面的value
-    iterator1：当 (item,index) => index  ,(value,key,index) => key
-    iterator1: 当 (item,index) => undefined  ,(value,key,index) => index
+    //解析v-once
+
+    
+   
+    //:key | key 绑定key或者普通key
+    key:keyExpression  循环时用到的唯一key，可能存在过滤器
+    
+    //:ref | ref 绑定ref或者普通 ref
+    ref:refExpression （动态绑定的值）
 }
 ```

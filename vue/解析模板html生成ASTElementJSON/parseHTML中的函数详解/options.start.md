@@ -21,7 +21,7 @@
     @params unary:当前是否单个可闭合标签
     @params start:正则符合开始的地方
     @params end:正则符合结束的地方
-#### 函数执行内容
+
    
    
    
@@ -98,7 +98,8 @@ start (tag, attrs, unary, start, end) {
         root = element
     }
     //如果当前不是单个可闭合标签  
-    if (!unary) {//确定当前父级
+    if (!unary) {
+        //确定当前父级
         currentParent = element
         stack.push(element)
     } else {

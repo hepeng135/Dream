@@ -40,7 +40,8 @@ function handleStartTag (match) {
     
     //expectHTML:确定是html字符串
     if (expectHTML) {
-      //上一个处理完成的标签是否p标签，并且当前标签是块级元素
+      //上一个处理完成的标签是否p标签，并且当前标签是块级元素,表示当前模板字符串中p标签中套用呢块元素
+      // p便签中不能包括块元素，次数直接闭合p标签，然后在处理当前标签
       if (lastTag === 'p' && isNonPhrasingTag(tagName)) {
         parseEndTag(lastTag)
       }
