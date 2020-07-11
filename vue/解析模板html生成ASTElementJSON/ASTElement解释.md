@@ -35,22 +35,26 @@
     pre:true | false  当前元素已其子元素是否需要编译
 
     //value in data | (value,index) in data | (value,name,index) in data
-    //解析v-for指令所得  eg : (item,key,index) in message
+    //processFor解析v-for指令所得  eg : (item,key,index) in message
     for: message
     alias:item
     iterator1：key
     iterator2: index
     
-    //解析v-if指令
+    //processIf函数解析v-if，v-else,v-else-if指令
+    if:ifExpression    
+    ifConditions:[{exp:ifExpression,block:当前这个el}]   
+    else:true  当el带有v-else属性
+    elseif：elseifExpression    
 
-    //解析v-once
-
+    //processOnce解析v-once
+    once: true  当前标签拥有v-once
     
    
     //:key | key 绑定key或者普通key
     key:keyExpression  循环时用到的唯一key，可能存在过滤器
     
     //:ref | ref 绑定ref或者普通 ref
-    ref:refExpression （动态绑定的值）
+    ref:refExpression  可能存在过滤器
 }
 ```

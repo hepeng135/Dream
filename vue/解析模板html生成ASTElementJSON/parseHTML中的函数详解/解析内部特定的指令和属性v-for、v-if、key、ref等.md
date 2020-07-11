@@ -36,7 +36,7 @@ export function processFor (el: ASTElement) {
             exp: ifExpression,
             block: el
         })
-    3:如果没有v-if,则看是否拥有else 或者 v-else-if,并添加属性
+    3:如果没有v-if,则看是否拥有else 和 v-else-if,并添加属性
         el.else:true or false
         el.elseif=elseifExpression
     
@@ -60,6 +60,20 @@ function processIf (el) {
   }
 }
 ```
+## v-once
+#### 函数作用
+    1：getAndRemoveAttr函数从el的attrsMap上获取v-once对应的value值，并从attrList上删除对应项   
+    2：el上添加once属性，值为true
+``` 
+function processOnce (el) {
+    const once = getAndRemoveAttr(el, 'v-once')
+    if (once != null) {
+        el.once = true
+    }
+}
+```
+
+
 
 
 ## :key / v-bind:key 

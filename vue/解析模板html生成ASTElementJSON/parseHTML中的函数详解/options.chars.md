@@ -1,5 +1,9 @@
 #### options.chars:处理空白节点或者纯文本节点
+
+
+#### 参数详解
 ```
+
 options.chars=chars (text: string, start: number, end: number) {
       if (!currentParent) {//
         if (process.env.NODE_ENV !== 'production') {
