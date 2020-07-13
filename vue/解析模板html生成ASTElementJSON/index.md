@@ -33,7 +33,8 @@
     
  
 #### 处理标签中的文本节点（字符、表达式）或者空白节点
-      1：首先确定空白的结束位置，并从html中取出
+   1：首先确定空白的结束位置，并从html中取出
+   
         let text, rest, next
         if (textEnd >= 0) {
             rest = html.slice(textEnd)
@@ -53,4 +54,4 @@
             //获取所有的文本节点
             text = html.substring(0, textEnd)
         }
-      2：  
+   2：chars处理  

@@ -10,6 +10,8 @@
 {
     type:[Number]标签类型   1：元素  2:带有表达式的文本  3：纯文本
     tag:[String] 标签名称
+
+
     attrList:[Array]  属性集合,[{name:attrName,value:attrValue,start:开始位置,end:结束位置}]
     attrsMap:[Object] 属性集合，与attrList对应 {attrName:attrValue}
     rawAttrsMap:[Object] 属性集合 与attrList对应  {attrName:{name:attrName,value:attrValue,start:开始位置,end:结束位置}}

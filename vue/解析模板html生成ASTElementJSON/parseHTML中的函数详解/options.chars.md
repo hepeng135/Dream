@@ -2,77 +2,61 @@
 
 
 #### 参数详解
+    @params text : 当前文本标签或者空白标签
+    @params start  起点位置
+    @params end 终点位置
 ```
 
 options.chars=chars (text: string, start: number, end: number) {
-      if (!currentParent) {//
-        if (process.env.NODE_ENV !== 'production') {
-          if (text === template) {
-            warnOnce(
-              'Component template requires a root element, rather than just text.',
-              { start }
-            )
-          } else if ((text = text.trim())) {
-            warnOnce(
-              `text "${text}" outside root element will be ignored.`,
-              { start }
-            )
-          }
-        }
+      
+    //Ie中textarea属性placeholder的bug,
+    //Ie中textarea的placeholder的值会在textarea标签中显示
+    if (isIE && currentParent.tag === 'textarea' &&currentParent.attrsMap.placeholder === text) {
         return
-      }
-      // IE textarea placeholder bug
-      /* istanbul ignore if */
-      if (isIE &&
-        currentParent.tag === 'textarea' &&
-        currentParent.attrsMap.placeholder === text
-      ) {
-        return
-      }
-      const children = currentParent.children
-      if (inPre || text.trim()) {
+    }
+    //获取当前最近的父级的子集
+    const children = currentParent.children
+
+    // 当前是否在pre标签中  或者  text是除了空格还有其他值。
+    if (inPre || text.trim()) {
+        //isTextTag  确定当前父级标签是否 script 或者 style。
         text = isTextTag(currentParent) ? text : decodeHTMLCached(text)
-      } else if (!children.length) {
-        // remove the whitespace-only node right after an opening tag
+
+    }
+     //这里还有一段关于是否压缩情况下的空格的一直处理，直接省略，只要是空格，统一处理成空 
+    else {
         text = ''
-      } else if (whitespaceOption) {
-        if (whitespaceOption === 'condense') {
-          // in condense mode, remove the whitespace node if it contains
-          // line break, otherwise condense to a single space
-          text = lineBreakRE.test(text) ? '' : ' '
-        } else {
-          text = ' '
-        }
-      } else {
-        text = preserveWhitespace ? ' ' : ''
-      }
-      if (text) {
-        if (!inPre && whitespaceOption === 'condense') {
-          // condense consecutive whitespaces into single space
-          text = text.replace(whitespaceRE, ' ')
-        }
+    }
+    //当有text的时候，直接作为文本标签去处理
+    //parseText解析文本中的表达式,eg:<p>{{message1 | add}}111 {{message2}} 222</p>返回的结果
+    /* {
+            expression:"_s(_f("add")(message1))+"" message""+_s(message2)+"" 222"",  
+            tokens:[{@bind:"_s(_f("add")(message1))"},"" 111"",{@bind:"_s(message2)"},"" 222""] 
+    /*}
+    
+    if (text) {  
         let res
         let child: ?ASTNode
         if (!inVPre && text !== ' ' && (res = parseText(text, delimiters))) {
-          child = {
+        child = {
             type: 2,
             expression: res.expression,
             tokens: res.tokens,
             text
-          }
-        } else if (text !== ' ' || !children.length || children[children.length - 1].text !== ' ') {
-          child = {
+        }
+    } else if (text !== ' ' || !children.length || children[children.length - 1].text !== ' ') {
+        child = {
             type: 3,
             text
-          }
         }
-        if (child) {
-          if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
+    }
+    if (child) {
+        if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
             child.start = start
             child.end = end
-          }
-          children.push(child)
         }
-      }
+        children.push(child)
     }
+}
+}
 ```
