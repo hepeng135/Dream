@@ -50,6 +50,7 @@ options.chars=chars (text: string, start: number, end: number) {
             text
         }
     }
+    //添加到当前标签的子集中
     if (child) {
         if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
             child.start = start

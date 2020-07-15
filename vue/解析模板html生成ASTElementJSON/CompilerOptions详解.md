@@ -77,7 +77,7 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
 ```
 
 #### modelObj.transformNode 函数详解
-   
+```
     1：根据el创建了三个副本，type分别为 radio checkBox  other(绑定的type)
     @return el0={
         input标签属性
@@ -91,7 +91,6 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
         else-if:elseIfCondition
     }
 
-```
 function preTransformNode (el: ASTElement, options: CompilerOptions) {
     //判断当前是input标签
     if (el.tag === 'input') {

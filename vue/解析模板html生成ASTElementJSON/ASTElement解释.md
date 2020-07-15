@@ -1,17 +1,17 @@
 
-####ASTElement [JSON] : 通过解析html模板生成标签信息json。
+#### ASTElement [JSON] : 通过解析html模板生成标签信息json。
 
 #### 绑定属性的val和一般属性val的区别
     绑定的值： 直接取出，进行过滤器解析，然后得出 xxxx （字符串）;
     普通的值：直接取出，用JSON.stringify处理下，得出  "xxxx" （带有双引号的字符串）
 
 
+#### 元素标签
 ```
 {
-    type:[Number]标签类型   1：元素  2:带有表达式的文本  3：纯文本
+    type:[Number]标签类型   1：元素
     tag:[String] 标签名称
-
-
+      
     attrList:[Array]  属性集合,[{name:attrName,value:attrValue,start:开始位置,end:结束位置}]
     attrsMap:[Object] 属性集合，与attrList对应 {attrName:attrValue}
     rawAttrsMap:[Object] 属性集合 与attrList对应  {attrName:{name:attrName,value:attrValue,start:开始位置,end:结束位置}}
@@ -59,4 +59,18 @@
     //:ref | ref 绑定ref或者普通 ref
     ref:refExpression  可能存在过滤器
 }
+```
+
+#### 纯文本标签
+```
+eg:<p>{{message1 | add}}111 {{message2}} 222</p
+{
+    type:2,
+    start:开始位置
+    end:结束位置
+    expression:"_s(_f("add")(message1))+"" message""+_s(message2)+"" 222"", 
+    tokens:[{@bind:"_s(_f("add")(message1))"},"" 111"",{@bind:"_s(message2)"},"" 222""] 
+    text:"{{message1 | add}}111 {{message2}} 222"
+}
+
 ```

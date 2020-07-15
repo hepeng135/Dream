@@ -135,16 +135,23 @@ function processRef (el) {
 }
 
 ```
+## 解析slot slot-scope v-slot
+#### 插槽与作用域插槽 slot scope  slot-scope 已废弃的语法
 
-## 插槽与作用域插槽 slot  slot-scope 已废弃的语法
-
-    定义的时候  <div> <slot name="header" :message="message"></div></div>
+    定义的时候  <div> <slot name="header" :message="message"></slot></div>
     
     调用的时候  <component-name><header slot-scope="{message}" slot="header">{{message}}</header></component-name>
+    或  <component-name><template scope="{message}" slot="header"><header>{{message}}</header></template></component-name>
 
-
-## 插槽与作用域插槽 slot v-slot 新增语法
+#### 插槽与作用域插槽 slot v-slot 新增语法
 
     定义的时候 <div> <slot name="A" :about="about"></slot> </div>   
     
-    调用的时候 <component-name> <p v-slot:A="{about}">{{about}}</p> </component-name>
+    调用的时候 <component-name><template v-slot:A="{about}"><p>{{about}}</p></template></component-name>
+    
+
+```
+    
+
+```    
+  
