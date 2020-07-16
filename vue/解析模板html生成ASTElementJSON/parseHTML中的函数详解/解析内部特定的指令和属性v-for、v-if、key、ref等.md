@@ -143,15 +143,147 @@ function processRef (el) {
     调用的时候  <component-name><header slot-scope="{message}" slot="header">{{message}}</header></component-name>
     或  <component-name><template scope="{message}" slot="header"><header>{{message}}</header></template></component-name>
 
-#### 插槽与作用域插槽 slot v-slot 新增语法
+#### 插槽与作用域插槽 slot v-slot 新增语法 
 
     定义的时候 <div> <slot name="A" :about="about"></slot> </div>   
     
     调用的时候 <component-name><template v-slot:A="{about}"><p>{{about}}</p></template></component-name>
-    
 
+#### processSlotContent函数的作用，解析 scope  slot-scope  v-slot
+    1：解析 slot scope  scope-slot
+        el.slotScope : 当前插槽的的作用域  
+        el.slotTarget :当前插槽的名字
+        el.slotTargetDynamic 当前插槽的值是静态（false）还是动态绑定(true)
+        如果当前不是template并且没有启用插槽作用域，则直接想el.attrsList中添加 {slotName,slotVal,start,end,dynamic:undefined}
+       
+    2:解析 v-slot:slotName=slotScope
+        el为template时
+            el.slotScope : 当前插槽的的作用域  
+            el.slotTarget :当前插槽的名字
+            el.slotTargetDynamic 当前插槽的值是静态（false）还是动态绑定(true)
+        el为组件的时候
+            el.plain:false
+            el.scopedSlots：{slotName：{
+                slotTarget，
+                slotTargetDynamic，
+                slotScope，
+                ..其他为el.chidren上的一些属性，子集没有slotScope
+            }}
+            
+       
 ```
+function processSlotContent (el) {
+    let slotScope
     
+    //处理插槽作用域
+    //scope 插槽的作用域只能挂载到template上
+    if (el.tag === 'template') {
+        //获取作用scope对应的表达式
+        slotScope = getAndRemoveAttr(el, 'scope')
+        //兼容slot-scope
+        el.slotScope = slotScope || getAndRemoveAttr(el, 'slot-scope')
+    } else if ((slotScope = getAndRemoveAttr(el, 'slot-scope'))) { 
+        //获取slot-scope，slot-scope可以挂载任何元素上，包括template
+        el.slotScope = slotScope
+    }
+    
+    //处理具名插槽
+    //获取静态或者绑定的slot属性，具名插槽。
+    const slotTarget = getBindingAttr(el, 'slot');
+    if (slotTarget) {
+        //当前slotTarget是否为空，则认为是default
+        el.slotTarget = slotTarget === '""' ? '"default"' : slotTarget ;
+        //当前slot是否绑定值
+        el.slotTargetDynamic = !!(el.attrsMap[':slot'] || el.attrsMap['v-bind:slot'])
+        //如果当前el不是template 并且没有插槽作用域，则向attr添加一份slot的属性信息，dynamic：表示当前的具名是静态的
+        if (el.tag !== 'template' && !el.slotScope) {
+            //向attr上添加slot属性的json  attr.push({name,value,start,end,dynamic:undefined})
+            addAttr(el, 'slot', slotTarget, getRawBindingAttr(el, 'slot'))
+        }
+    }
+
+    //处理最新的v-slot,
+    //当当前v-slot挂载在template上时
+    if (el.tag === 'template') {
+        // v-slot on <template>
+        //处理具名插槽
+        //getAndRemoveAttrByRegex函数从el.attrList中通过正则获取name为v-slot所在的属性json
+        const slotBinding = getAndRemoveAttrByRegex(el, slotRE)
+        if (slotBinding) {
+            //getSlotName：通过正则从slotBinding.name中获取具名插槽的名字
+            //通过正则获取当前这个name是否静态值还是绑定值
+            // dynamic：true  or false    动态绑定 or 静态
+            const { name, dynamic } = getSlotName(slotBinding)
+            
+            //el上挂载 
+            //slotTarget：插槽具名名字   
+            //slotTargetDynamic：插槽名是否动态
+            //slotScope :具名插槽的作用域，没有的话设置为  _empty_ ；
+            el.slotTarget = name
+            el.slotTargetDynamic = dynamic
+            el.slotScope = slotBinding.value || emptySlotScopeToken // force it into a scoped slot for perf
+        }
+    } else {
+        //当v-slot挂载在当前组件上时
+        //从attrList上获取v-slot对应的信息
+        const slotBinding = getAndRemoveAttrByRegex(el, slotRE)
+        if (slotBinding) {
+            
+            //获取el上的作用域插槽集合，默认为{}
+            const slots = el.scopedSlots || (el.scopedSlots = {})
+            //获取插槽的名字以及是否绑定状态
+            const { name, dynamic } = getSlotName(slotBinding)
+            
+            //以el为父级，创建一个template元素，并且添加到 el.scopedSlots.slotName上
+            const slotContainer = slots[name] = createASTElement('template', [], el)
+            //设置template的插槽名称
+            slotContainer.slotTarget = name
+            //插槽名称的绑定状态
+            slotContainer.slotTargetDynamic = dynamic
+            
+            //循环el的child,当前没有作用域的child将添加到template.children中
+            slotContainer.children = el.children.filter((c: any) => {
+                if (!c.slotScope) {
+                    c.parent = slotContainer
+                    return true
+                }
+            })
+            //设置template这个插槽的作用域
+            slotContainer.slotScope = slotBinding.value || emptySlotScopeToken
+            
+            
+            el.children = []
+            // mark el non-plain so data gets generated
+            el.plain = false
+        }
+    }
+}
 
 ```    
-  
+#### processSlotOutlet：解析slot标签,el.slotName=slotName
+
+```
+function processSlotOutlet (el) {
+  if (el.tag === 'slot') {
+    el.slotName = getBindingAttr(el, 'name')
+  }
+}
+
+```
+
+## is / v-bind:is  / :is
+#### processComponent函数处理组件上的 is 属性 和 inline-template属性
+    el.component=isExpression
+    el.inline-template=true
+```
+function processComponent (el) {
+    let binding
+    if ((binding = getBindingAttr(el, 'is'))) {
+        el.component = binding
+    }
+    if (getAndRemoveAttr(el, 'inline-template') != null) {
+        el.inlineTemplate = true
+    }
+}
+
+```

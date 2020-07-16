@@ -11,6 +11,6 @@
 
     (1)第一次 scope 只能挂载到template上使用 
     (2)第二次  slot-scope 可以用于template，也可以用于其他的
-    (3)第三次  v-slot 可以用于template，也可以用于其他的
+    (3)第三次  v-slot 只能挂载在template上
     
     
