@@ -45,6 +45,9 @@
         modelObj<Object>:
             preTransformNode:处理input标签，
     
+    isReservedTag：当前标签属于html标签或者svg标签 中的一种 
+    
+    staticKeys：静态key
 #### classObj.transformNode函数详解
 ```
 function transformNode (el: ASTElement, options: CompilerOptions) {

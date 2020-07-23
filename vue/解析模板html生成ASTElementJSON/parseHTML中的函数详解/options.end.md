@@ -1,4 +1,4 @@
-end:end钩子函数，处理结束标签，维护stack数组，更新currentParent,并调用closeElement函数
+#### end:end钩子函数，处理结束标签，维护stack数组，更新currentParent,并调用closeElement函数
 
 
 ```
@@ -16,8 +16,12 @@ function end (tag, start, end) {
 }
 ```
 
-closeElement：
+#### closeElement  闭合标签时处理一些事物
 
+#### 函数的作用 
+    1：processElement函数解析标签的 v-slot slot-scope scope属性，以及是slot标签时解析name，component标签或者组件时解析 is inline-template属性  
+    2：处理带有v-else和v-else-if的标签，带有这些属性的标签不会被添加到父级中children，而是添加同级上一个带有v-if标签的ifConditions 中
+    3:确定父级自子集关系（带有elesif 或者 else属性的el不会去和currentParent确定子父级关系）
 
 ```
 function closeElement (element) {
@@ -46,13 +50,14 @@ function closeElement (element) {
             //prevSublingElement.ifConditions.push({exp:expression,block:element})
             processIfConditions(element, currentParent)
         } else {
+            //如果当前标签带有作用域插槽
             if (element.slotScope) {
-                // scoped slot
-                // keep it in the children list so that v-else(-if) conditions can
-                // find it as the prev node.
-                const name = element.slotTarget || '"default"'
+                //获取插槽的名字，默认为default
+                const name = element.slotTarget || '"default"';
+                //想父级的currentParent.scopedSlot新增一个 以slotName为key的对象，值为el。
                 ;(currentParent.scopedSlots || (currentParent.scopedSlots = {}))[name] = element
             }
+            //el和currentParent互相正式添加父子关系
             currentParent.children.push(element)
             element.parent = currentParent
         }
@@ -60,11 +65,12 @@ function closeElement (element) {
 
     // final children cleanup
     // filter out scoped slots
+    //过滤el.children，清除el.children中带有slotScope的标签
     element.children = element.children.filter(c => !(c: any).slotScope)
-    // remove trailing whitespace node again
+    //清除el.children下的空白节点
     trimEndingWhitespace(element)
 
-    // check pre state
+    // 更新全局变量  inVPre  inPre；
     if (element.pre) {
         inVPre = false
     }
