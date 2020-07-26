@@ -81,7 +81,7 @@
     props:[{bidngsPropsJson,....}]
 
     //其他属性
-    el.attrs:[{bindsAttrJson,...}]
+    attrs:[{bindsAttrJson,...}]
 
     //绑定事件
     events:{eventName:{eventHandleFn,start,end,dynamic}}
