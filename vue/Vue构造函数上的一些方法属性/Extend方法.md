@@ -36,7 +36,7 @@ function initExtend (Vue: GlobalAPI) {
     
     Sub.cid = cid++
     //将Vue的options与当前传进来的组件选项合并，相同的情况下，vue.option的的权重更高
-    //Super.options  当前构造函数的option，详情可以查看：Vue.property文件夹下的property了解当前Vue.options
+    //Super.options  当前父构造函数的option，详情可以查看：Vue.property文件夹下的property了解当前Vue.options
     //extendOptions  当前你传进来的组件选项，不过多呢  _Ctor 和 name 属性
     Sub.options = mergeOptions(
       Super.options,

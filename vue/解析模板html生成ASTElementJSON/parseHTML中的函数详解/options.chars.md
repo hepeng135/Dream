@@ -38,16 +38,17 @@ options.chars=chars (text: string, start: number, end: number) {
         let res
         let child: ?ASTNode
         if (!inVPre && text !== ' ' && (res = parseText(text, delimiters))) {
-        child = {
-            type: 2,
-            expression: res.expression,
-            tokens: res.tokens,
-            text
-        }
-    } else if (text !== ' ' || !children.length || children[children.length - 1].text !== ' ') {
-        child = {
-            type: 3,
-            text
+            child = {
+                type: 2,
+                expression: res.expression,
+                tokens: res.tokens,
+                text
+            }
+        } else if (text !== ' ' || !children.length || children[children.length - 1].text !== ' ') {
+            child = {
+                type: 3,
+                text
+            }
         }
     }
     //添加到当前标签的子集中

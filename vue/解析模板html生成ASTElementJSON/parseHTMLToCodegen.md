@@ -290,3 +290,94 @@
     
 
 ## v-text、v-html、v-show、v-on(@)、v-bind(:)、v-pre、v-cloak、v-once
+组件代码
+
+    <p @click="eventClick" @emitEvent="emitEvent" :a="title" b="title" v-html="message | add" v-once class="test" :class="{box:isActive}" style="color: #0000FF" :style="{fontSize:'12px',background:red}"></p>
+    
+    data(){
+        return {
+            title:'props',
+            message:'主组件Vue',
+            isActive:'className',
+            red:'red',
+        }
+    }
+    methods:{
+        eventClick(){
+            this.state++;
+        },
+        emitEvent(st){
+            console.log(st)
+        }
+    },
+    filters:{
+        add(val){console.log(val);return val+'222'} 
+    }
+    
+解析成ASTElement
+
+    {
+        type:1,tag:'p',
+        attrsList:[
+            {name: "@click", value: "eventClick", start: 590, end: 609},
+            {name: "@emitevent", value: "emitEvent", start: 610, end: 632},
+            {name: ":a", value: "title", start: 633, end: 643},
+            {name: "b", value: "title", start: 644, end: 653},
+            {name: "v-html", value: "message", start: 654, end: 670}
+        ],
+        attrsMap:[
+            @click: "eventClick", @emitevent: "emitEvent",:a: "title", b: "title",
+            v-html: "message", v-once: "",class: "test",:class: "{box:isActive}",style: "color: #0000FF",:style: "{fontSize:'12px',background:red}",
+        ],
+        rawAttrsMap:{
+            @click: {name: "@click", value: "eventClick", start: 590, end: 609},
+            @emitevent: {name: "@emitevent", value: "emitEvent", start: 610, end: 632},
+            :a: {name: ":a", value: "title", start: 633, end: 643},
+            b: {name: "b", value: "title", start: 644, end: 653},
+            v-html: {name: "v-html", value: "message", start: 654, end: 670},
+            v-once: {name: "v-once", value: "", start: 671, end: 680},
+            class: {name: "class", value: "test", start: 681, end: 693},
+            :class: {name: ":class", value: "{box:isActive}", start: 694, end: 717},
+            style: {name: "style", value: "color: #0000FF", start: 718, end: 740},
+            :style: {name: ":style", value: "{fontSize:'12px',background:red}", start: 741, end: 782}
+        },
+        events:{
+            click: {value: "eventClick", dynamic: false, start: 590, end: 609}
+            emitevent: {value: "emitEvent", dynamic: false, start: 610, end: 632}
+        }
+        attrs:[
+            {name: "a", value: "title", dynamic: false, start: 633, end: 643}
+            {name: "b", value: ""title"", dynamic: undefined, start: 644, end: 653}
+        ]
+        directives:[
+            {name: "html", rawName: "v-html", value: "message", arg: null, isDynamicArg: false, modifiers,start,end}
+        ],
+        children:[
+            {type:2,expression: "_s(_f("add")(message))",tokens:[{@binding: "_f("add")(message)"}],text: "{{message | add}}",static:false,start,end}     
+        ],
+        staticClass: ""test""
+        classBinding: "{box:isActive}"
+        staticStyle: "{"color":"#0000FF"}"
+        styleBinding: "{fontSize:'12px',background:red}"
+        static: false
+        staticInFor: false
+        staticRoot: false
+        once: true
+        plain: false
+        hasBindings: true
+    }
+    
+    
+生成器，生成函数
+
+    "with(this){return _c('p',{
+            staticClass:"test",
+            class:{box:isActive},
+            staticStyle:{"color":"#0000FF"},
+            style:({fontSize:'12px',background:red}),
+            attrs:{"a":title,"b":"title"},
+            domProps:{"innerHTML":_s(message)},
+            on:{"click":eventClick,"emitevent":emitEvent}
+        },
+        [_v(_s(_f("add")(message)))]
+    )}"

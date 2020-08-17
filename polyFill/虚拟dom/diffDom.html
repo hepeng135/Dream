@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    p{
+        font-size: 30px;
+        color: red;
+    }
+</style>
+<body>
+    <div id="app">
+
+    </div>
+</body>
+
+<script src="./VDom.js"></script>
+<script>
+
+    let vnode=createElement('div',{id:'test'},[
+        createElement('p',{key:'a',style:{color:'blue'}},['节点1']),
+        createElement('p',{key:'b','@click':()=>{alert('xx')}},['节点2']),
+        createElement('p',{key:'c','class':'item'},['节点3']),
+        createElement('p',{key:'d'},['节点3']),
+    ])
+    //console.log(div)
+    render(vnode,document.querySelector('#app'));
+    /*function createElement(){
+        return {
+            tag:'div',
+            data:{id:'app'},
+            children:[
+                {
+                    tag:'p',
+                    data:{class:'item'},
+                    children:['节点1']
+                }
+
+            ]
+        }
+
+    }*/
+
+</script>
+</html>
