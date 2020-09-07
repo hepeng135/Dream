@@ -20,7 +20,7 @@ options._data={
 about:{name,age},
 arrData:[{id,mess}]
 }
-
+2,3,4,5
 //Observer实例 =》
 this.value;
 this.dep=new Dep();
@@ -118,7 +118,7 @@ this.addSub  =>  this.subs.push(sub)
     
     
  7：得到的结果 ，watcher和dep相互引用   ，watcher中的newDeps有dep
-    watcher实例中，存放当前watcher对应的dep（唯一性，存存在重复的dep）
+    watcher实例中，存放当前watcher对应的dep（唯一性，不存在重复的dep）
          newDepIds：存放depId的集合（唯一性）
          newDeps：存放deps的集合（唯一性）
     dep实例中
@@ -128,6 +128,69 @@ this.addSub  =>  this.subs.push(sub)
              
              
 ## 更新,当对应的数据发送改变时，触发拦截器set，调用dep.notify()方法通知更新
+
+1：给数据进行重新赋值时通过代理映射到option._data中，从而触发对应的set拦截器
+
+```
+set:function(newVal){
+   dep.notify() 
+}
+```
+2:调用dep.notify(),循环这个属性对应的watcher，执行update
+
+```
+//Dep实例中
+notify () {
+    //创建一个新的watcher数组，改属性的所有watcher
+    const subs = this.subs.slice()
+    //循环这个dep对应的watcher,每个watcher实例执行update方法
+    for (let i = 0, l = subs.length; i < l; i++) {
+      subs[i].update()
+    }
+}
+```
+3:执行queueWatcher，将watcher推入观察者队列中，
+```
+//watcher实例中，调用queueWatcher推入到观察者队列中
+update () {
+    queueWatcher(this)
+}
+
+const queue: Array<Watcher> = []  //观察者集合
+const activatedChildren: Array<Component> = []
+let has: { [key: number]: ?true } = {} //存放已加入队列的watcher的id
+let circular: { [key: number]: number } = {}
+let waiting = false  //当前队列是否等待中
+let flushing = false //当前队列是否已经刷新
+let index = 0
+//将watcher推入到观察者中
+queueWatcher (watcher: Watcher){
+    const id = watcher.id
+    if (has[id] == null) { //记录当前watcher的id。，确保对应watcher不重复。
+        has[id] = true
+        if (!flushing) {//flushing  代表当前队列是否刷新
+            queue.push(watcher)
+        } else {
+            // if already flushing, splice the watcher based on its id
+            // if already past its id, it will be run next immediately.
+            let i = queue.length - 1
+            while (i > index && queue[i].id > watcher.id) {
+                i--
+            }
+            queue.splice(i + 1, 0, watcher)
+        }
+        // queue the flush  队列刷新
+        if (!waiting) {  //当前队列的状态是否等待中。
+            waiting = true
+            nextTick(flushSchedulerQueue)
+        }
+    }
+}
+
+
+
+```
+
   
   
 
