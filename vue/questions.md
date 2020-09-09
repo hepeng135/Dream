@@ -5,3 +5,6 @@
 
 
 3：Vue中内部的组件<keep-live></keep-live>等,与我们组件创建的组件有什么区别。
+
+4：从代码层面去结束watch 与 component的区别 
+
