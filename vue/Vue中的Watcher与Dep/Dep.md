@@ -24,11 +24,12 @@ export default class Dep {
             Dep.target.addDep(this)//向watcher中添加对应的dep
         }
     }
-    //原型方法，通知该dep依赖的watcher进行更新操作
+    //原型方法，当属性被赋值时，触发setter拦截器，执行对应属性dep的notify方法。
+    //
     notify () {
-        const subs = this.subs.slice()
+        const subs = this.subs.slice() //获取一个全新的watcher数据，和这个dep有关系的watcher
         for (let i = 0, l = subs.length; i < l; i++) {//循环这个dep对应的watcher
-            subs[i].update()
+            subs[i].update() //执行watcher的update()方法
         }
     }
 }

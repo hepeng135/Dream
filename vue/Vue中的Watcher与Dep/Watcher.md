@@ -52,9 +52,9 @@ class Watcher {
         this.id = ++uid // uid for batching
         this.active = true
         this.dirty = this.lazy // for lazy watchers
-        this.deps = []
-        this.newDeps = [] //存放这个实例watch对应的dep实例
-        this.depIds = new Set()
+        this.deps = []  //存放上一次依赖的dep
+        this.newDeps = [] //存放这个实例watch最新的dep实例
+        this.depIds = new Set() //存放上一次的depid
         this.newDepIds = new Set() //存放这个实例对应的depid
         this.expression = process.env.NODE_ENV !== 'production'
           ? expOrFn.toString()
@@ -131,12 +131,14 @@ class Watcher {
         }
     }
 
-/**
-* Clean up for dependency collection.
-*/
+    /**
+    * 更新dep和watcher操作
+    * 1：获取上一次的dep集合，循环调用，假如旧dep在新dep中不存在，则需要在该dep中引用的这个watcher删除掉
+    * 2: 然后更新deps 和 depIds , 将 newDeps  newDepId 清空
+    */
     cleanupDeps () {
-        let i = this.deps.length
-        while (i--) {
+        let i = this.deps.length  
+        while (i--) { 
             const dep = this.deps[i]
             if (!this.newDepIds.has(dep.id)) {
                 dep.removeSub(this)
