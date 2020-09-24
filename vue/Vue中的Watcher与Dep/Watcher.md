@@ -1,31 +1,51 @@
-Watcher构造函数，每个组件对应一个Watcher.
+在Vue中watcher分两种，第一种是组件模板编译成render函数时进行调用，第二种是用户利用vm.watch创建的。
+
+### 组件模板编译成render函数时调用。
+
+调用代码如下所示，
+
+1：updateComponent为更新渲染DOM的函数，通过render生成vnode，然后新旧vnode进行比较更新渲染，当第一次渲染时，则直接将vnode生成真正的DOM，然后插入到页面中
+2：before:用于执行钩子函数beforeUpdate
+
+```
+new Watcher(vm, updateComponent, noop, {
+    before () {
+        if (vm._isMounted && !vm._isDestroyed) {
+            callHook(vm, 'beforeUpdate')
+        }
+    }
+}
+
+```
+当上述函数执行时
+
+1：首先执行watcher的构造函数，进行一些初始化操作,
+```
+//因为是Vue自己创建的watcher，属性 deep ，user ,lazy ,sync 都将为false，
+this.deep=!!options.deep;
+this.user=!!options.user;
+this.lazy=!!options.lazy;
+this.sync=!!options.sync;
+this.before =options.before; 用于执行beforeUpdate钩子函数（数据更新时调用，发生在虚拟DOM比较之前）
+
+this.deps=[];//已经收集了该watcher的dep集合
+this.depsid=new Set();
+
+this.newDeps=[]; //最新已经收集了该watcher的dep集合
+this.newDepsId:new Set();
+
+//获取我们需要监测的目标  可能为函数或者 表达式
+this.getter=typeof expOrFn === 'function' ?  expOrFn : parsePath(expOrFn)
+```
+2：在构造函数的最后调用this.get()原型方法。
+3：在get()方法中，我们将给Dep.target赋值给当前watcher实例，在调用this.getter，访问数据，触发getter，进而收集依赖。
+收集完成后将Dep.target设置为null.
+
+
 
 
 ```
 class Watcher {
-    vm: Component;
-    expression: string;
-    cb: Function;
-    id: number;
-    deep: boolean;
-    user: boolean;
-    lazy: boolean;
-    sync: boolean;
-    dirty: boolean;
-    active: boolean;
-    deps: Array<Dep>;
-    newDeps: Array<Dep>;
-    depIds: SimpleSet;
-    newDepIds: SimpleSet;
-    before: ?Function;
-    getter: Function;
-    value: any;
-    //构造函数，参数列表
-    //vm:当前组件实例
-    //expOrFn:当前观察的对象，键路径或者一个函数计算结果
-    //cb：当前观察对象改变时的回调函数
-    //options：当前观察的配置，deep，immediate，
-    //isRenderWatcher：是不是组件渲染时创建的watcher
     constructor (
         vm: Component,
         expOrFn: string | Function,
@@ -41,9 +61,9 @@ class Watcher {
         // options
         if (options) {
             this.deep = !!options.deep  //对象深度监测
-            this.user = !!options.user //当前回调函数是不是一个对象
-            this.lazy = !!options.lazy //惰性配置，暂时不知道干嘛的
-            this.sync = !!options.sync  //同步配置，暂时不知道干嘛的
+            this.user = !!options.user //当前watcher实例时用户自己创建的
+            this.lazy = !!options.lazy //惰性配置，配置true时，表示当前这个观察者将不加入到vue的响应式中，既当监听的属性变化时，对应的回调不会执行。
+            this.sync = !!options.sync  //同步配置，
             this.before = options.before //组件实例watcher自动带有一个before构造函数
         } else {
             this.deep = this.user = this.lazy = this.sync = false
@@ -71,7 +91,7 @@ class Watcher {
                 this.getter = noop
             }
         }
-        this.value = this.lazy   //执行原型方法get
+        this.、 = this.lazy   //执行原型方法get
           ? undefined
           : this.get()
     }
@@ -111,14 +131,13 @@ class Watcher {
             //收集一轮dep后，维护targetStack和Dep.target
             popTarget()
             //清除操作，
-            //1：去除dep中
             this.cleanupDeps()
         }
         return value
     }
 
     /**
-    * 添加dep，用来收集这个watcher实例中的dep
+    * 收集dep，收集这个watcher被哪些Dep触发
     */
     addDep (dep: Dep) {
         const id = dep.id
@@ -132,9 +151,10 @@ class Watcher {
     }
 
     /**
-    * 更新dep和watcher操作
-    * 1：获取上一次的dep集合，循环调用，假如旧dep在新dep中不存在，则需要在该dep中引用的这个watcher删除掉
-    * 2: 然后更新deps 和 depIds , 将 newDeps  newDepId 清空
+    * 更新deps  和 depsId
+    * 循环上次收集这个watcher的dep集合，看是否在这次新dep集合中，否则就将这个watcher从对应dep中删除。
+    * 更新deps 和depsId ，新值为收集这个watcher的dep集合， newDeps,newDepsId,更新完毕以后就将newDeps和newDepsId清空
+    * 
     */
     cleanupDeps () {
         let i = this.deps.length  
@@ -155,8 +175,7 @@ class Watcher {
     }
 
 /**
-* Subscriber interface.
-* Will be called when a dependency changes.
+* 更新操作，当属性发生改变时，对应的依赖调用
 */
     update () {
         if (this.lazy) {
