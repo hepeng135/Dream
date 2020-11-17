@@ -20,13 +20,24 @@ patch:通过对比新旧的虚拟DOM进行更新视图。
 
 
 
->更新策略 diff 新旧首位和末尾四个相互交叉比较，通过while循环，条件为oldStartIndex<=oldEndIndex 且 newStartIndex<=newEndIndex
->1. 当oldStartVnode与newStartVnode进行比较，同一个node时，调用patchVnode,并且oldStartIndex与newStartIndex分别+1,然后更新oldStartVnode、newStartVnode
->2. 当oldEndVnode与newEndVnode进行比较，同一个node时，调用patchVnode,并且oldEndIndex与newEndIndex分别-1,然后更新oldEndVnode、newEndVnode
->3. 当oldStartVnode与newEndVnode进行比较，同一个node时，调用patchVnode,并且oldStartIndex+1,newEndIndex-1,然后更新oldStartVnode、newEndVnode
->4. 当oldEndVnode与newStartVnode进行比较，同一个node时，调用patchVnode,并且oldEndIndex-1,newStartIndex+1,然后更新oldEndVnode与newStartVnode
->5. 上述条件都不满足时
->>
+#### 更新策略 
+diff 新旧首位和末尾四个相互交叉比较，通过while循环，条件为oldStartIndex<=oldEndIndex 且 newStartIndex<=newEndIndex
+>A. 当oldStartVnode与newStartVnode进行比较，同一个node时，调用patchVnode,并且oldStartIndex与newStartIndex分别+1,然后更新oldStartVnode、newStartVnode
+>>* 当条件符合，新旧节点的位置相同，只需要调用patchVnode进行更新节点。
+
+>B. 当oldEndVnode与newEndVnode进行比较，同一个node时，调用patchVnode,并且oldEndIndex与newEndIndex分别-1,然后更新oldEndVnode、newEndVnode
+>>* 当条件符合，新旧节点的位置相同，只需要调用patchVnode进行更新节点。
+
+>C. 当oldStartVnode与newEndVnode进行比较，同一个node时，调用patchVnode,并且oldStartIndex+1,newEndIndex-1,然后更新oldStartVnode、newEndVnode
+>>* 当条件符合，新旧节点的位置不同，需要先调用patchVnode进行更新节点，然后移动节点。
+>>* 移动的基点，插入oldEndVnode(未处理的)后面，既当前oldEndVnode的下一个兄弟节点之前，调用insertBefore
+
+>D. 当oldEndVnode与newStartVnode进行比较，同一个node时，调用patchVnode,并且oldEndIndex-1,newStartIndex+1,然后更新oldEndVnode与newStartVnode
+>>* 当条件符合，新旧节点的位置不同，需要先调用patchVnode进行更新节点，然后移动节点。
+>>* 移动的基点，插入oldNewVnode的前面，既当前oldNewVnode的之前，insetBefore。
+
+>其他. 上述条件都不满足时，获取oldVnode集合中未处理节点上的所有key，并组成一个json对象oldKeyToIdx，key为名，index为值，然后跟当前这个newStartVnode的key进行对比
+>>* 当在 oldKeyToIdx 中有key与
 
 
 
