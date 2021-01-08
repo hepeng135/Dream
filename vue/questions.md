@@ -6,7 +6,7 @@
 
 3：Vue中内部的组件<keep-live></keep-live>等,与我们组件创建的组件有什么区别。
 
-4：从代码层面去结束watch 与 component的区别 
+4：从代码层面去结束watch 与 computed的区别 
 
 
 5：Vue1到Vue2的变化
@@ -17,7 +17,7 @@ Vue2: 引入虚拟DOM，属性的状态对应的依赖不在直接精确到DOM�
 虚拟DOM进行对比，大大降低依赖数量，从而降低依赖追踪所消耗的内存。
 
 
-6:dep在属性getter时收集watcher，watcher：在数据发送setter时既数据发送变、化时通知他，他在通知其他地方进行更新
+6:dep在属性getter时收集watcher，watcher：在数据发生改变时触发setter时通知他，他在通知其他地方进行更新
 
 
 7：Vue2中的数据侦测
@@ -52,4 +52,10 @@ Vue2: 引入虚拟DOM，属性的状态对应的依赖不在直接精确到DOM�
         
      
      ```
+
+8:源码中inject比provide先初始化，而且在data/prop后，顺序为
+initInject、initData/initProp/initMethods/initWatcher/initComputed、initProvide.
+inject在这些的前面是因为：data、prop、methods...等可能要依赖于inject,,
+provide在这些的后面：provide可能需要依赖data、prop等这些。
+
 
