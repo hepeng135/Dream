@@ -444,6 +444,120 @@ location相对于的路由对象 {name: "Home",meta: {}, path: "/",hash: "",quer
 在这里我们通过目标路径，确认我们即将要去路由的所有路由对象信息（params,query,component等），接下来就是确认路径，然后渲染该路径对应的组件，接下来我们来看看
 确认过渡这个函数 confirmTransition
 
+```
+confirmTransition (route: Route, onComplete: Function, onAbort?: Function) {
+    const current = this.current
+    const abort = err => {
+        if (isError(err)) {
+            if (this.errorCbs.length) {
+                this.errorCbs.forEach(cb => {
+                    cb(err)
+                })
+            } else {
+                warn(false, 'uncaught error during route navigation:')
+                console.error(err)
+            }
+        }
+        onAbort && onAbort(err)
+    }
+    // 如果当前的路由信息与将去往的路由信息相同，则直接返回
+    if (
+        isSameRoute(route, current) &&
+        route.matched.length === current.matched.length
+    ) {
+        this.ensureURL()  // 如果当前地址栏url  与 current不一样  ，则修改为current， 只修改url  不涉及组件更新和页面跳转
+        return abort()
+    }
+    // 每个路由对象都带有matched数组，一个路由对应的可能对应多个matched， 如 /foo/a 则对应两个，因为 /foo对应一个正则  /foo/bar对应一个正则
+    // resolveQueue 通过对比目标的matched和现在的matched，确定需要更新哪些组件，eg: 目标：/foo/a  现在：/foo  既我们现在只需要更新foo对应的组件
+    // 哪些需要更新  哪些不需要更新 updated:不需要更新的路由配置对象集合（组件） activated:需要重新创建的路由配置对象集合   deactivated：需要销毁的路由配置对象集合
+    // eg /foo/a  跳往/foo/b   则 /foo对象的组件不需要更新（保留）  /foo/a 对应的组件需要销毁  /foo/b 对应的组件需要创建
+    const {
+        updated,
+        deactivated,
+        activated
+    } = resolveQueue(this.current.matched, route.matched)
+    // 生命周期队列，用于调用路由的各种钩子函数
+    // 1：deactivated 组件调用beforeRouterLeave   2:全局beforeEach守卫   3：
+    const queue: Array<?NavigationGuard> = [].concat(
+        // 返回要销毁组件集合beforeRouterLeave钩子函数集合，其实返回的是bindGuard函数，
+        // bindGuard函数中调用beforeRouterLeave钩子函数，this指向当前组件的实例，参数为调用bindGuard函数的参数
+        extractLeaveGuards(deactivated), // 调用beforeRouterLeave钩子
+        // global before hooks
+        this.router.beforeHooks,  // 全局beforeEach守卫
+        // in-component update hooks
+        // 返回要更新组件的beforeRouterUpdate钩子函数集合，和上面的组件内独享钩子函数一样的处理方式
+        extractUpdateHooks(updated),   // 调用 beforeRouterUpdate钩子函数
+        // in-config enter guards
+        //  beforeEnter：路独享的钩子函数，直接map这个activated（将要新建的路由配置）获取每个组件独享的beforeEnter
+        activated.map(m => m.beforeEnter), // 调用beforeEnter钩子函数
+        // async components
+        resolveAsyncComponents(activated)  // 异步组件
+    )
+    // 当前要去往的路由配置项
+    this.pending = route
+    // hook:当前的路由钩子函数  next:回调runQueue中的step函数
+    const iterator = (hook: NavigationGuard, next) => {
+        if (this.pending !== route) {
+            return abort()
+        }
+        try {
+            // 调用钩子函数，  塞入函数  to:route  from:current  next
+            hook(route, current, (to: any) => {
+                // 当next都参数为false时，中断导航，调用ensureURL将浏览器地址恢复至current
+                if (to === false || isError(to)) {
+                    // next(false) -> abort navigation, ensure current URL
+                    this.ensureURL(true)
+                    abort(to)
+                } else if ( typeof to === 'string' || (typeof to === 'object' && ( typeof to.path === 'string' || typeof to.name === 'string'))) {
+                    // 跳转到另一个地址。
+                    // next('/') or next({ path: '/' }) -> redirect
+                    abort()
+                    if (typeof to === 'object' && to.replace) {
+                        this.replace(to)
+                    } else {
+                        this.push(to)
+                    }
+                } else { // 确认导航
+                    // confirm transition and pass on the value
+                    next(to)
+                }
+            })
+        } catch (e) {
+            abort(e)
+        }
+    }
+    // queue 钩子函数队列
+    runQueue(queue, iterator, () => {
+        const postEnterCbs = []
+        const isValid = () => this.current === route
+        // wait until async components are resolved before
+        // extracting in-component enter guards
+        // 获取组件的beforeRouteEnter组件
+        const enterGuards = extractEnterGuards(activated, postEnterCbs, isValid)
+        const queue = enterGuards.concat(this.router.resolveHooks)
+        runQueue(queue, iterator, () => {
+            if (this.pending !== route) {
+                return abort()
+            }
+            this.pending = null
+            onComplete(route)
+            if (this.router.app) {
+                this.router.app.$nextTick(() => {
+                    postEnterCbs.forEach(cb => {
+                        cb()
+                    })
+                })
+            }
+        })
+    })
+}
+```
+上述函数中，通过resolveQueue函数获取当前需要销毁组件(matched对象中含有对应的组件)deactivated，不需要更新的组件updated,需要重新创建的组件activated，
+然后将beforeRouterLeave，beforeEach,beforeRouteUpdate,beforeEnter对应的路由钩子函数取出，然后进行执行，并且用resolveAsyncComponents函数去处理异步组件
+，再次调用beforeRouteEnter钩子函数，当beforeRouteEnter钩子调用完毕后，我们进行当前组件，已经当前组件父集合的_route属性，该属性在install方法中被我们作为
+响应式对象添加到了每个组件实例上，当他改变时，每个组件下子组件router-view都会重新进行渲染，加载当前路由对应的新组件。
+
 
 
 
